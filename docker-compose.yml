@@ -1,0 +1,41 @@
+version: '3'
+services:
+  gitlab:
+    image: 'gitlab/gitlab-ce:latest'
+    restart: always
+    hostname: '79.127.125.189'
+    container_name: gitlab
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://79.127.125.189'
+    ports:
+      - '8087:80'
+      - '33443:443'
+    volumes:
+      - './gitlab/config:/etc/gitlab'
+      - './gitlab/logs:/var/log/gitlab'
+      - './gitlab/data:/var/opt/gitlab'
+    networks:
+      uat:
+        ipv4_address: 172.28.5.4
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine
+    container_name: gitlab-runner
+    restart: always
+    depends_on:
+      - gitlab
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - './gitlab/gitlab-runner:/etc/gitlab-runner'
+      - '/etc/hosts:/etc/hosts'
+    networks:
+      uat:
+        ipv4_address: 172.28.5.8
+
+
+
+networks:
+  uat:
+    external: true
+    name: br0
+
